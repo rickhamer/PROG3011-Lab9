@@ -6,7 +6,9 @@
 #define RCC_IOPENR  (unsigned long *)0x40021034
 
 #define EXTI        (unsigned long *)0x40021800
+#define EXTI_RTSR1  (unsigned long *)0x40021800
 #define EXTI_FTSR1   (unsigned long *)0x40021804
+#define EXTI_RPR1    (unsigned long *)0x4002180C
 #define EXTI_FPR1    (unsigned long *)0x40021810
 #define EXTI_EXTICR1 (unsigned long *)0x40021860
 #define EXTI_EXTICR2 (unsigned long *)0x40021864
@@ -53,6 +55,9 @@ void exti4_15_handler()
     /* clear the pending interrupt */
     *EXTI_FPR1 |= 0x00002000UL;
 
+    /* clear the pending interrupt */
+    *EXTI_RPR1 |= 0x00002000UL;
+
     /* toggle LED ON/OFF (PA5) */
     *GPIOA_ODR ^= 0x20UL;
 }
@@ -85,8 +90,6 @@ void main()
 
     /* configure PLL variables */
     /* N=8, M=1, R=2 */
-//    *RCC_PLLCFGR &= ~0xE0007F70UL;
-//    *RCC_PLLCFGR |= 0x20000800UL;
     *RCC_PLLCFGR &= ~0xF0007F73UL;
     *RCC_PLLCFGR |= 0x30000802UL;
 
@@ -95,9 +98,6 @@ void main()
 
     /* wait for RLLRDY to be set */
     while ( !(*RCC_CR & 0x02000000UL) );
-
-    /* turn on PLLR output */
-//    *RCC_PLLCFGR |= 0x10000000UL;
 
     /* add wait states to FLASH */
     uint32_t flash_acr = *FLASH_ACR;
