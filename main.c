@@ -136,7 +136,7 @@ void main()
     /* configure EXTI13 to trigger on falling edge */
     *EXTI_FTSR1 |= 0x00002000UL;
 
-    /* unmask the EXTI13 interrupt */
+    /* unmask (enable) the EXTI13 interrupt */
     *EXTI_IMR1 |= 0x00002000UL;
 
     /* enabling EXTI4-15 interrupt in the NVIC */
@@ -147,12 +147,12 @@ void main()
     {
         if ((millis() - last_tick) > 1000) {
             /* toggle LED ON/OFF (PA5) */
-            //*GPIOA_ODR ^= 0x20UL;
+            //*GPIOA_ODR ^= 0x20UL;   <== moved to exti4_15_handler()
             last_tick = millis();
         }
 
-        print_ch('O');
-        print_ch('K');
+        //print_ch('O');
+        //print_ch('K');
 
     }
 }
