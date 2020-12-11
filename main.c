@@ -5,8 +5,8 @@
 #define RCC_PLLCFGR (unsigned long *)0x4002100C
 #define RCC_IOPENR  (unsigned long *)0x40021034
 
-#define EXTI        (unsigned long *)0x40021800
-#define EXTI_RTSR1  (unsigned long *)0x40021800
+#define EXTI         (unsigned long *)0x40021800
+#define EXTI_RTSR1   (unsigned long *)0x40021800
 #define EXTI_FTSR1   (unsigned long *)0x40021804
 #define EXTI_RPR1    (unsigned long *)0x4002180C
 #define EXTI_FPR1    (unsigned long *)0x40021810
@@ -52,11 +52,9 @@ void systick_handler()
 
 void exti4_15_handler()
 {
-    /* clear the pending interrupt */
-    *EXTI_FPR1 |= 0x00002000UL;
-
-    /* clear the pending interrupt */
+    /* clear the pending interrupts */
     *EXTI_RPR1 |= 0x00002000UL;
+    *EXTI_FPR1 |= 0x00002000UL;
 
     /* toggle LED ON/OFF (PA5) */
     *GPIOA_ODR ^= 0x20UL;
@@ -90,6 +88,8 @@ void main()
 
     /* configure PLL variables */
     /* N=8, M=1, R=2 */
+//    *RCC_PLLCFGR &= ~0xE0007F70UL;
+//    *RCC_PLLCFGR |= 0x20000800UL;
     *RCC_PLLCFGR &= ~0xF0007F73UL;
     *RCC_PLLCFGR |= 0x30000802UL;
 
@@ -133,10 +133,11 @@ void main()
     *EXTI_EXTICR4 &= ~0x0000FF00UL;
     *EXTI_EXTICR4 |= 0x00000200UL;
 
-    /* configure EXTI13 to trigger on falling edge */
+    /* configure EXTI13 to trigger on falling and rising edge */
+    *EXTI_RTSR1 |= 0x00002000UL;
     *EXTI_FTSR1 |= 0x00002000UL;
 
-    /* unmask (enable) the EXTI13 interrupt */
+    /* unmask the EXTI13 interrupt */
     *EXTI_IMR1 |= 0x00002000UL;
 
     /* enabling EXTI4-15 interrupt in the NVIC */
@@ -146,13 +147,8 @@ void main()
     while(1)
     {
         if ((millis() - last_tick) > 1000) {
-            /* toggle LED ON/OFF (PA5) */
-            //*GPIOA_ODR ^= 0x20UL;   <== moved to exti4_15_handler()
             last_tick = millis();
         }
-
-        //print_ch('O');
-        //print_ch('K');
 
     }
 }
